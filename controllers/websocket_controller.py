@@ -8,6 +8,8 @@ from controllers.orderbook_controller import handle_orderbook, handle_trades
 
 load_dotenv()
 DEBUG = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
+TICKER = os.getenv("TICKER", "1rPATO")
+EXCHANGE = os.getenv("EXCHANGE", "PAR")
 
 def debug_log(message):
     if DEBUG:
@@ -40,7 +42,7 @@ async def connect_websocket():
                     "user": {"login": login, "password": password},
                     "data": {
                         "connection": {"login": login, "password": password},
-                        "feed": "#bookPAR-1rPATO"
+                        "feed": f"#book{EXCHANGE}-{TICKER}"
                     }
                 }))
 
@@ -50,7 +52,7 @@ async def connect_websocket():
                     "user": {"login": login, "password": password},
                     "data": {
                         "connection": {"login": login, "password": password},
-                        "feed": "#livePAR-1rPATO"
+                        "feed": f"#live{EXCHANGE}-{TICKER}"
                     }
                 }))
 
