@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Orderbuch</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <style>
+        .bar-container {
+            display: flex;
+            height: 30px;
+            overflow: hidden;
+            background-color: #f1f1f1;
+            border-radius: 20px;
+        }
+        .bar-bid {
+            background-color: #2ecc71;
+            text-align: center;
+            color: white;
+            padding: 5px;
+            font-weight: bold;
+        }
+        .bar-ask {
+            background-color: #e74c3c;
+            text-align: center;
+            color: white;
+            padding: 5px;
+            font-weight: bold;
+        }
+        #bid-percentage {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        #ask-percentage {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>    
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-lg rounded-lg">
+        <h2 class="text-2xl font-bold mb-4">Live Orderbuch - ATOS</h2>
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-2">Orderbuch</h3>
+                <table class="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 px-3 py-2">Orders</th>
+                            <th class="border border-gray-300 px-3 py-2">Shares</th>
+                            <th class="border border-gray-300 px-3 py-2">Bid Price</th>
+                            <th class="border border-gray-300 px-3 py-2">Ask Price</th>
+                            <th class="border border-gray-300 px-3 py-2">Shares</th>
+                            <th class="border border-gray-300 px-3 py-2">Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderbook-body">
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-center font-bold text-green-600" id="total-bid-shares">0</td>
+                            <td colspan="2" class="text-center">Gesamt</td>
+                            <td colspan="2" class="text-center font-bold text-red-600" id="total-ask-shares">0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-center" id="total-bid-orders">0</td>
+                            <td colspan="2" class="text-center">Orders</td>
+                            <td colspan="2" class="text-center" id="total-ask-orders">0</td>
+                        </tr>
+                    </tfoot>                    
+                </table>
+                <div class="bar-container mt-4">
+                    <div class="bar-bid">0</div>
+                    <div class="bar-ask">0</div>
+                </div>
+                <div class="flex justify-between text-sm mt-2">
+                    <span class="text-green-600 font-bold" id="bid-percentage">0%</span>
+                    <span>Verhältnis</span>
+                    <span class="text-red-600 font-bold" id="ask-percentage">0%</span>
+                </div>                
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-2">Tick-Daten</h3>
+                <table class="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 px-3 py-2">Zeit</th>
+                            <th class="border border-gray-300 px-3 py-2">Preis</th>
+                            <th class="border border-gray-300 px-3 py-2">Volumen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trades-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>    
+
+    <script>
+        function formatNumber(value) {
+            if (value === -2) return "MKT";
+            if (typeof value === 'number') {
+                return value.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 5 });
+            }
+            return value;
+        }
+
+        function updateTotals(bids, asks) {
+            let totalBidShares = 0;
+            let totalAskShares = 0;
+            let totalBidOrders = 0;
+            let totalAskOrders = 0;
+            
+            Object.values(bids).forEach(bid => {
+                totalBidShares += bid.size;
+                totalBidOrders += bid.quantity;
+            });
+
+            Object.values(asks).forEach(ask => {
+                totalAskShares += ask.size;
+                totalAskOrders += ask.quantity;
+            });
+
+            $('#total-bid-shares').text(totalBidShares.toLocaleString('de-DE'));
+            $('#total-ask-shares').text(totalAskShares.toLocaleString('de-DE'));
+            $('#total-bid-orders').text(totalBidOrders);
+            $('#total-ask-orders').text(totalAskOrders);
+
+            let total = totalBidShares + totalAskShares;
+            let bidPercentage = total > 0 ? (totalBidShares / total * 100).toFixed(1) : 0;
+            let askPercentage = total > 0 ? (totalAskShares / total * 100).toFixed(1) : 0;
+
+            $('.bar-bid').css('width', bidPercentage + '%').text(totalBidShares.toLocaleString('de-DE'));
+            $('.bar-ask').css('width', askPercentage + '%').text(totalAskShares.toLocaleString('de-DE'));
+
+            $('#bid-percentage').text(bidPercentage + '%');
+            $('#ask-percentage').text(askPercentage + '%');
+        }
+
+        function fetchData() {
+            $.getJSON('/data', function(data) {
+                let orderbookBody = '';
+                let tradesBody = '';
+                
+                let bids = data.bids;
+                let asks = data.asks;
+                let trades = data.trades.slice(-50).reverse();
+                
+                let orderbookRows = Array.from({ length: 10 }, (_, index) => ({
+                    row: index + 1,
+                    bidSize: '',
+                    bidPrice: '',
+                    bidOrders: '',
+                    askPrice: '',
+                    askSize: '',
+                    askOrders: ''
+                }));
+
+                updateTotals(bids, asks);
+
+                Object.keys(bids).forEach(key => {
+                    let rowIndex = parseInt(key) + 1;
+                    if (orderbookRows[rowIndex - 1]) {
+                        orderbookRows[rowIndex - 1].bidSize = formatNumber(bids[key].size) || '';
+                        orderbookRows[rowIndex - 1].bidPrice = formatNumber(bids[key].price) || '';
+                        orderbookRows[rowIndex - 1].bidOrders = bids[key].quantity || '';
+                    }
+                });
+                Object.keys(bids).forEach(key => {
+                    let rowIndex = parseInt(key) + 1;
+                    if (orderbookRows[rowIndex - 1]) {
+                        orderbookRows[rowIndex - 1].bidSize = formatNumber(bids[key].size) || '';
+                        orderbookRows[rowIndex - 1].bidPrice = formatNumber(bids[key].price) || '';
+                    }
+                });
+
+                Object.keys(asks).forEach(key => {
+                    let rowIndex = parseInt(key) + 1;
+                    if (orderbookRows[rowIndex - 1]) {
+                        orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
+                        orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
+                        orderbookRows[rowIndex - 1].askOrders = asks[key].quantity || '';
+                    }
+                });
+                Object.keys(asks).forEach(key => {
+                    let rowIndex = parseInt(key) + 1;
+                    if (orderbookRows[rowIndex - 1]) {
+                        orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
+                        orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
+                    }
+                });
+
+                orderbookRows.forEach(row => {
+                    orderbookBody += `<tr>
+                        <td class='border px-3 py-2'>${row.bidOrders || ''}</td>
+                        <td class='border px-3 py-2'>${row.bidSize}</td>
+                        <td class='border px-3 py-2 bg-green-100'>${row.bidPrice}</td>
+                        <td class='border px-3 py-2 bg-red-100'>${row.askPrice}</td>
+                        <td class='border px-3 py-2'>${row.askSize}</td>
+                        <td class='border px-3 py-2'>${row.askOrders || ''}</td>
+                    </tr>`;
+                });
+
+                trades.forEach(trade => {
+                    tradesBody += `<tr>
+                        <td class='border px-3 py-2'>${trade[0]}</td>
+                        <td class='border px-3 py-2'>${formatNumber(trade[1])}</td>
+                        <td class='border px-3 py-2'>${formatNumber(trade[2])}</td>
+                    </tr>`;
+                });
+                
+                $('#orderbook-body').html(orderbookBody);
+                $('#trades-body').html(tradesBody);
+            });
+        }
+
+        setInterval(fetchData, 2000);
+        fetchData();
+    </script>
+</body>
+</html>
