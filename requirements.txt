@@ -3,3 +3,4 @@ websockets
 asyncio
 pandas
 python-dotenv
+requests
