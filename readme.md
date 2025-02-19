@@ -1,6 +1,6 @@
 # 📊 Live Orderbuch - ATOS
 
-Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Aktie. Es nutzt **Websockets** zur Echtzeit-Datenübertragung und **Flask** als Backend, während das Frontend mit **HTML**, **Tailwind CSS**, und **jQuery** umgesetzt ist.
+Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Aktie. Es nutzt **Websockets** zur Echtzeit-Datenübertragung und **Flask** als Backend, während das Frontend mit **HTML** umgesetzt ist.
 
 ---
 
@@ -36,7 +36,7 @@ Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Akt
 
 1. **Repository klonen:**
    ```sh
-   git clone https://github.com/USERNAME/Live-Orderbuch-ATOS.git
+   git clone https://github.com/SteGun93/Live-Orderbuch-ATOS.git
    cd Live-Orderbuch-ATOS
    ```
 
@@ -53,7 +53,7 @@ Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Akt
    ```
 
 4. **Umgebungsvariablen einrichten:**
-   Erstelle eine `.env`-Datei im Root-Verzeichnis und füge folgende Zeile hinzu:
+   Erstelle eine `.env`-Datei im Root-Verzeichnis, falls diese nicht existiert und füge folgende Zeile hinzu:
    ```
    DEBUG=True
    ```
@@ -81,10 +81,7 @@ Live-Orderbuch-ATOS/
 │   └── login_service.py             # Login und Token-Handling
 │
 ├── templates/
-│   └── index.html                   # Haupt-Frontend
-│
-├── static/
-│   └── css/                         # Eigene Styles (falls benötigt)
+│   └── index.html                   # Frontend
 │
 ├── .env                             # Umgebungsvariablen
 ├── requirements.txt                 # Python-Abhängigkeiten
@@ -115,18 +112,12 @@ Live-Orderbuch-ATOS/
 
 ## **Autor**
 
-👤 **Dein Name**  
-📧 **[Deine E-Mail-Adresse]**  
-🐙 **GitHub**: [https://github.com/USERNAME](https://github.com/USERNAME)
+👤 **SteGun93**  
+🐙 **GitHub**: [https://github.com/SteGun93](https://github.com/SteGun93)
 
 ---
 
 ## **Danke für deinen Beitrag!**
-
----
-
-### **Hinweis:**
-- Passe die `USERNAME`, `Deine E-Mail-Adresse` und den **Screenshot-Pfad** (`https://path-to-screenshot.png`) an dein Setup an.
 
 ---
 
