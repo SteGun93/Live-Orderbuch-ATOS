@@ -103,6 +103,57 @@ Live-Orderbuch-ATOS/
 
 ---
 
+## 🐳 Docker-Setup
+
+Falls du die Anwendung mit **Docker** betreiben möchtest, kannst du dies einfach mit **Docker Compose** tun.
+
+### 1️⃣ Container starten
+Stelle sicher, dass **Docker** installiert ist und führe dann folgenden Befehl aus:
+
+```sh
+docker-compose up -d
+```
+
+- Die Anwendung läuft dann unter **`http://localhost:5001`** (Standardmäßig auf Port **5001**, kann in `docker-compose.yml` angepasst werden).
+- **`-d`** sorgt dafür, dass der Container im Hintergrund läuft.
+
+### 2️⃣ Container stoppen
+Falls du den Container beenden möchtest:
+
+```sh
+docker-compose down
+```
+
+### 3️⃣ Logs anzeigen
+Falls du die Live-Logs des Containers sehen möchtest:
+
+```sh
+docker logs -f live-orderbuch
+```
+
+### 4️⃣ Änderungen übernehmen (Neuaufbau)
+Falls Änderungen am Code gemacht wurden und du den Container neu aufbauen möchtest:
+
+```sh
+docker-compose up --build -d
+```
+
+### 5️⃣ Port ändern
+Falls du den Port ändern möchtest, passe die folgende Zeile in der `docker-compose.yml` an:
+
+```yaml
+ports:
+  - "5001:5000"  # Ändere "5001" auf den gewünschten Port
+```
+
+Dann **Container neustarten**:
+
+```sh
+docker-compose down && docker-compose up -d
+```
+
+---
+
 ## **Mitwirken**
 
 - **Pull Requests** sind willkommen!
