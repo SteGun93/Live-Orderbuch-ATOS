@@ -196,8 +196,8 @@
                     orderbookBody += `<tr>
                         <td class='border px-3 py-2'>${row.bidOrders || ''}</td>
                         <td class='border px-3 py-2'>${row.bidSize}</td>
-                        <td class='border px-3 py-2 bg-green-100'>${row.bidPrice}</td>
-                        <td class='border px-3 py-2 bg-red-100'>${row.askPrice}</td>
+                        <td class='border px-3 py-2 bg-green-100'>${row.bidPrice} €</td>
+                        <td class='border px-3 py-2 bg-red-100'>${row.askPrice} €</td>
                         <td class='border px-3 py-2'>${row.askSize}</td>
                         <td class='border px-3 py-2'>${row.askOrders || ''}</td>
                     </tr>`;
@@ -206,7 +206,7 @@
                 trades.forEach(trade => {
                     tradesBody += `<tr>
                         <td class='border px-3 py-2'>${trade[0]}</td>
-                        <td class='border px-3 py-2'>${formatNumber(trade[1])}</td>
+                        <td class='border px-3 py-2'>${formatNumber(trade[1])} €</td>
                         <td class='border px-3 py-2'>${formatNumber(trade[2])}</td>
                     </tr>`;
                 });
