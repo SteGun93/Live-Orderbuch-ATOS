@@ -1,0 +1,32 @@
+services:
+  orderbuch:
+    container_name: live-orderbuch
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    ports:
+      - "5001:5000"
+    volumes:
+      - .:/app
+      - python-packages:/app/venv
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import http.client; conn = http.client.HTTPConnection('localhost', 5000); conn.request('GET', '/'); response = conn.getresponse(); exit(0 if response.status == 200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - orderbuch-network
+
+networks:
+  orderbuch-network:
+    driver: bridge
+
+volumes:
+  python-packages:
+    name: orderbuch-python-packages
