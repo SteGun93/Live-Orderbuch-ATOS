@@ -47,11 +47,76 @@
             th, td { padding: 6px !important; }
             .overflow-x-auto { overflow-x: scroll; }
         }
+
+        :root {
+            --bg-light: #f8f9fa;
+            --bg-dark: #1e1e1e;
+            --text-light: #212529;
+            --text-dark: #f8f9fa;
+            --table-light: #ffffff;
+            --table-dark: #2e2e2e;
+            --border-light: #ced4da;
+            --border-dark: #444;
+        }
+
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .dark-mode .bg-white {
+            background-color: var(--table-dark) !important;
+            color: var(--text-dark);
+        }
+
+        .dark-mode table {
+            background-color: var(--table-dark);
+        }
+
+        .dark-mode th, .dark-mode td {
+            border-color: var(--border-dark);
+        }
+
+        .dark-mode .bg-gray-100 {
+            background-color: var(--bg-dark) !important;
+        }
+
+        .dark-mode .bg-gray-200 {
+            background-color: #3a3a3a !important;
+        }
+
+        .dark-mode .border-gray-300 {
+            border-color: var(--border-dark) !important;
+        }
+
+        .dark-mode .bar-container {
+            background-color: var(--border-dark);
+        }
+
+        .dark-mode .bar-bid {
+            background-color: #218838;
+        }
+
+        .dark-mode .bar-ask {
+            background-color: #c82333;
+        }
+
+        .dark-mode .highlight-green {
+            background-color: #218838 !important;
+            transition: background-color 1s ease-in-out !important;
+        }
+        .dark-mode .highlight-red {
+            background-color: #c82333 !important;
+            transition: background-color 1s ease-in-out !important;
+        }
     </style>    
 </head>
 <body class="bg-gray-100 p-4 sm:p-6">
     <div class="max-w-6xl mx-auto bg-white p-4 sm:p-6 shadow-lg rounded-lg">
         <h2 class="text-2xl font-bold mb-4 text-center">Live Orderbuch - ATOS</h2>
+        <button id="toggle-dark-mode" class="p-2 bg-gray-800 text-white rounded-lg">
+            Dark Mode umschalten
+        </button>        
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
                 <h3 class="text-lg font-semibold mb-2">Orderbuch</h3>
@@ -111,6 +176,25 @@
     </div>    
 
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton = document.getElementById("toggle-dark-mode");
+            const body = document.body;
+
+            if (localStorage.getItem("dark-mode") === "enabled") {
+                body.classList.add("dark-mode");
+            }
+
+            toggleButton.addEventListener("click", function () {
+                body.classList.toggle("dark-mode");
+
+                if (body.classList.contains("dark-mode")) {
+                    localStorage.setItem("dark-mode", "enabled");
+                } else {
+                    localStorage.setItem("dark-mode", "disabled");
+                }
+            });
+        });
 
         let previousValues = {};
         let highlightTimers = {};
@@ -233,8 +317,8 @@
                     orderbookBody += `<tr>
                         <td class='border px-3 py-2'>${row.bidOrders || ''}</td>
                         <td class='border px-3 py-2'>${row.bidSize}</td>
-                        <td class='border px-3 py-2 bg-green-100'>${row.bidPrice} €</td>
-                        <td class='border px-3 py-2 bg-red-100'>${row.askPrice} €</td>
+                        <td class='border px-3 py-2 highlight-green'>${row.bidPrice} €</td>
+                        <td class='border px-3 py-2 highlight-red'>${row.askPrice} €</td>
                         <td class='border px-3 py-2'>${row.askSize}</td>
                         <td class='border px-3 py-2'>${row.askOrders || ''}</td>
                     </tr>`;
