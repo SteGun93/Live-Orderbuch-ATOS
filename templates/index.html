@@ -15,62 +15,68 @@
             background-color: #f1f1f1;
             border-radius: 20px;
         }
-        .bar-bid {
-            background-color: #2ecc71;
+        .bar-bid, .bar-ask {
             text-align: center;
             color: white;
             padding: 5px;
             font-weight: bold;
+            flex-grow: 1;
         }
-        .bar-ask {
-            background-color: #e74c3c;
-            text-align: center;
-            color: white;
-            padding: 5px;
-            font-weight: bold;
+        .highlight-green {
+            background-color: #c8e6c9 !important;
+            transition: background-color 1s ease-in-out !important;
         }
-        #bid-percentage {
-            color: #2ecc71;
-            font-weight: bold;
+        .highlight-red {
+            background-color: #ffcdd2 !important;
+            transition: background-color 1s ease-in-out !important;
         }
-        #ask-percentage {
-            color: #e74c3c;
-            font-weight: bold;
+        .bar-bid { background-color: #2ecc71; }
+        .bar-ask { background-color: #e74c3c; }
+        #bid-percentage { color: #2ecc71; font-weight: bold; }
+        #ask-percentage { color: #e74c3c; font-weight: bold; }
+        @media (max-width: 768px) {
+            .grid-cols-2 { grid-template-columns: 1fr !important; }
+            .text-2xl { font-size: 1.5rem !important; }
+            .text-lg { font-size: 1.2rem !important; }
+            table { font-size: 0.9rem !important; }
+            th, td { padding: 6px !important; }
+            .overflow-x-auto { overflow-x: scroll; }
         }
     </style>    
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-6xl mx-auto bg-white p-6 shadow-lg rounded-lg">
-        <h2 class="text-2xl font-bold mb-4">Live Orderbuch - ATOS</h2>
-        <div class="grid grid-cols-2 gap-6">
+<body class="bg-gray-100 p-4 sm:p-6">
+    <div class="max-w-6xl mx-auto bg-white p-4 sm:p-6 shadow-lg rounded-lg">
+        <h2 class="text-2xl font-bold mb-4 text-center">Live Orderbuch - ATOS</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
                 <h3 class="text-lg font-semibold mb-2">Orderbuch</h3>
-                <table class="w-full border-collapse border border-gray-300 text-sm">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border border-gray-300 px-3 py-2">Orders</th>
-                            <th class="border border-gray-300 px-3 py-2">Shares</th>
-                            <th class="border border-gray-300 px-3 py-2">Bid Price</th>
-                            <th class="border border-gray-300 px-3 py-2">Ask Price</th>
-                            <th class="border border-gray-300 px-3 py-2">Shares</th>
-                            <th class="border border-gray-300 px-3 py-2">Orders</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orderbook-body">
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2" class="text-center font-bold text-green-600" id="total-bid-shares">0</td>
-                            <td colspan="2" class="text-center">Gesamt</td>
-                            <td colspan="2" class="text-center font-bold text-red-600" id="total-ask-shares">0</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="text-center" id="total-bid-orders">0</td>
-                            <td colspan="2" class="text-center">Orders</td>
-                            <td colspan="2" class="text-center" id="total-ask-orders">0</td>
-                        </tr>
-                    </tfoot>                    
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border border-gray-300 px-3 py-2">Orders</th>
+                                <th class="border border-gray-300 px-3 py-2">Shares</th>
+                                <th class="border border-gray-300 px-3 py-2">Bid Price</th>
+                                <th class="border border-gray-300 px-3 py-2">Ask Price</th>
+                                <th class="border border-gray-300 px-3 py-2">Shares</th>
+                                <th class="border border-gray-300 px-3 py-2">Orders</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderbook-body"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="text-center font-bold text-green-600" id="total-bid-shares">0</td>
+                                <td colspan="2" class="text-center">Gesamt</td>
+                                <td colspan="2" class="text-center font-bold text-red-600" id="total-ask-shares">0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-center" id="total-bid-orders">0</td>
+                                <td colspan="2" class="text-center">Orders</td>
+                                <td colspan="2" class="text-center" id="total-ask-orders">0</td>
+                            </tr>
+                        </tfoot>                    
+                    </table>
+                </div>
                 <div class="bar-container mt-4">
                     <div class="bar-bid">0</div>
                     <div class="bar-ask">0</div>
@@ -83,22 +89,49 @@
             </div>
             <div>
                 <h3 class="text-lg font-semibold mb-2">Tick-Daten</h3>
-                <table class="w-full border-collapse border border-gray-300 text-sm">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border border-gray-300 px-3 py-2">Zeit</th>
-                            <th class="border border-gray-300 px-3 py-2">Preis</th>
-                            <th class="border border-gray-300 px-3 py-2">Volumen</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trades-body">
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border border-gray-300 px-3 py-2">Zeit</th>
+                                <th class="border border-gray-300 px-3 py-2">Preis</th>
+                                <th class="border border-gray-300 px-3 py-2">Volumen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trades-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>    
 
     <script>
+
+        let previousValues = {};
+
+        let highlightTimers = {};
+
+        function highlightChange(cell, newValue, key) {
+            if (previousValues[key] !== undefined) {
+                if (newValue > previousValues[key]) {
+                    cell.classList.add('highlight-green');
+                } else if (newValue < previousValues[key]) {
+                    cell.classList.add('highlight-red');
+                }
+
+                if (highlightTimers[key]) {
+                    clearTimeout(highlightTimers[key]);
+                }
+
+                highlightTimers[key] = setTimeout(() => {
+                    cell.classList.remove('highlight-green', 'highlight-red');
+                    delete highlightTimers[key];
+                }, 2000);
+            }
+
+            previousValues[key] = newValue;
+        }
+
         function formatNumber(value) {
             if (value === -2) return "MKT";
             if (typeof value === 'number') {
@@ -168,13 +201,6 @@
                         orderbookRows[rowIndex - 1].bidOrders = bids[key].quantity || '';
                     }
                 });
-                Object.keys(bids).forEach(key => {
-                    let rowIndex = parseInt(key) + 1;
-                    if (orderbookRows[rowIndex - 1]) {
-                        orderbookRows[rowIndex - 1].bidSize = formatNumber(bids[key].size) || '';
-                        orderbookRows[rowIndex - 1].bidPrice = formatNumber(bids[key].price) || '';
-                    }
-                });
 
                 Object.keys(asks).forEach(key => {
                     let rowIndex = parseInt(key) + 1;
@@ -182,13 +208,6 @@
                         orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
                         orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
                         orderbookRows[rowIndex - 1].askOrders = asks[key].quantity || '';
-                    }
-                });
-                Object.keys(asks).forEach(key => {
-                    let rowIndex = parseInt(key) + 1;
-                    if (orderbookRows[rowIndex - 1]) {
-                        orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
-                        orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
                     }
                 });
 
@@ -212,11 +231,16 @@
                 });
                 
                 $('#orderbook-body').html(orderbookBody);
+                $('#orderbook-body td').each(function() {
+                    let key = $(this).index() + '-' + $(this).parent().index();
+                    let newValue = parseFloat($(this).text().replace(/[^0-9.-]+/g, "")) || 0;
+                    highlightChange(this, newValue, key);
+                });
                 $('#trades-body').html(tradesBody);
             });
         }
 
-        setInterval(fetchData, 2000);
+        setInterval(fetchData, 200);
         fetchData();
     </script>
 </body>
