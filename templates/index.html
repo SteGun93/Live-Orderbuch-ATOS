@@ -30,6 +30,11 @@
             background-color: #ffcdd2 !important;
             transition: background-color 1s ease-in-out !important;
         }
+        .highlight-blue {
+            background-color: #0057b7 !important;
+            color: white !important;
+            transition: background-color 1s ease-in-out !important;
+        }
         .bar-bid { background-color: #2ecc71; }
         .bar-ask { background-color: #e74c3c; }
         #bid-percentage { color: #2ecc71; font-weight: bold; }
@@ -108,8 +113,10 @@
     <script>
 
         let previousValues = {};
-
         let highlightTimers = {};
+        let previousTrades = {};
+        let tradeHighlightTimers = {};
+        let lastTradeTimestamp = null;
 
         function highlightChange(cell, newValue, key) {
             if (previousValues[key] !== undefined) {
@@ -130,6 +137,17 @@
             }
 
             previousValues[key] = newValue;
+        }
+
+        function highlightTrade(cell, key) {
+            if (tradeHighlightTimers[key]) {
+                clearTimeout(tradeHighlightTimers[key]);
+            }
+            cell.classList.add('highlight-blue');
+            tradeHighlightTimers[key] = setTimeout(() => {
+                cell.classList.remove('highlight-blue');
+                delete tradeHighlightTimers[key];
+            }, 2000);
         }
 
         function formatNumber(value) {
@@ -236,7 +254,23 @@
                     let newValue = parseFloat($(this).text().replace(/[^0-9.-]+/g, "")) || 0;
                     highlightChange(this, newValue, key);
                 });
+
                 $('#trades-body').html(tradesBody);
+                $('#trades-body tr').each(function(index) {
+                    let tradeRow = $(this);
+                    let tradeTimestamp = tradeRow.find('td:eq(0)').text();
+
+                    if (lastTradeTimestamp === null || tradeTimestamp > lastTradeTimestamp) {
+                        tradeRow.addClass('highlight-blue');
+                        setTimeout(() => {
+                            tradeRow.removeClass('highlight-blue');
+                        }, 2000);
+                    }
+                });
+
+                if (trades.length > 0) {
+                    lastTradeTimestamp = trades[0][0];
+                }
             });
         }
 
