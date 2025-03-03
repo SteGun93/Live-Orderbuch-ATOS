@@ -12,6 +12,13 @@ def debug_log(message):
 orderbook_bids = defaultdict(lambda: {"price": None, "quantity": None, "size": None})
 orderbook_asks = defaultdict(lambda: {"price": None, "quantity": None, "size": None})
 trades = deque(maxlen=50)
+day_volume = 0
+opening_price = 0
+susp_opening_price = 0
+high_price = 0
+low_price = 0
+susp_high_price = 0
+susp_low_price = 0
 
 def handle_orderbook(data):
     book_row = data.get("bookRow", None)
@@ -42,6 +49,43 @@ def handle_orderbook(data):
     debug_log(f"📊 Orderbuch aktualisiert: Bids: {orderbook_bids}, Asks: {orderbook_asks}")
 
 def handle_trades(data):
+    global day_volume, opening_price, susp_opening_price, high_price, low_price, susp_high_price, susp_low_price
+    
+    if "volume" in data:
+        day_volume = data["volume"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Volumen: {day_volume}")
+
+    if "open" in data:
+        opening_price = data["open"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Eröffnungskurs: {opening_price}")
+
+    if "suspOpen" in data:
+        susp_opening_price = data["suspOpen"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Suspended Eröffnungskurs: {susp_opening_price}")
+
+    if "high" in data:
+        high_price = data["high"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Höchstkurs: {high_price}")
+    
+    if "low" in data:
+        low_price = data["low"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Tiefstkurs: {low_price}")
+    
+    if "suspHigh" in data:
+        susp_high_price = data["suspHigh"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Suspended Höchstkurs: {susp_high_price}")
+    
+    if "suspLow" in data:
+        susp_low_price = data["suspLow"]
+        debug_log("Aktualisierung der Tagesdaten:")
+        debug_log(f"📈 Suspended Tiefstkurs: {susp_low_price}")
+    
     if "last" in data and "tradeVolume" in data and "tradeTime" in data:
         trade_time = data["tradeTime"]
         last_price = data["last"]
@@ -50,4 +94,15 @@ def handle_trades(data):
 
         debug_log(f"📈 Neuer Trade: Zeit={trade_time}, Preis={last_price}, Volumen={trade_volume}")
     else:
-        debug_log("⚠ Keine gültigen Trade-Daten oder theoretischer Preis empfangen, ignoriert.")
+        debug_log("Ungültige Live-Daten erhalten!")
+        
+def get_market_data():
+    return {
+        "day_volume": day_volume,
+        "opening_price": opening_price,
+        "susp_opening_price": susp_opening_price,
+        "high_price": high_price,
+        "low_price": low_price,
+        "susp_high_price": susp_high_price,
+        "susp_low_price": susp_low_price
+    }

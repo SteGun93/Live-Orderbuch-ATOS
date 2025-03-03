@@ -116,7 +116,36 @@
         <h2 class="text-2xl font-bold mb-4 text-center">Live Orderbuch - ATOS</h2>
         <button id="toggle-dark-mode" class="p-2 bg-gray-800 text-white rounded-lg">
             Dark Mode umschalten
-        </button>        
+        </button>
+        <div>
+            <h3 class="text-lg font-semibold mb-2">Tageswerte</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 px-3 py-2">Gehandelte Shares</th>
+                            <th class="border border-gray-300 px-3 py-2">Öffnungspreis</th>
+                            <th class="border border-gray-300 px-3 py-2">erwarteter Öffnungspreis</th>
+                            <th class="border border-gray-300 px-3 py-2">Höchstpreis</th>
+                            <th class="border border-gray-300 px-3 py-2">Tiefstpreis</th>
+                            <th class="border border-gray-300 px-3 py-2">erwarteter Höchstpreis</th>
+                            <th class="border border-gray-300 px-3 py-2">erwarteter Tiefstpreis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="text-center">
+                            <td class="border px-3 py-2" id="day-volume"></td>
+                            <td class="border px-3 py-2" id="opening-price"></td>
+                            <td class="border px-3 py-2" id="susp-opening-price"></td>
+                            <td class="border px-3 py-2" id="high-price"></td>
+                            <td class="border px-3 py-2" id="low-price"></td>
+                            <td class="border px-3 py-2" id="susp-high-price"></td>
+                            <td class="border px-3 py-2" id="susp-low-price"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
                 <h3 class="text-lg font-semibold mb-2">Orderbuch</h3>
@@ -282,6 +311,13 @@
                 let bids = data.bids;
                 let asks = data.asks;
                 let trades = data.trades.slice(-50).reverse();
+                let dayVolume = data.day_volume;
+                let openingPrice = data.opening_price;
+                let suspOpeningPrice = data.susp_opening_price;
+                let highPrice = data.high_price;
+                let lowPrice = data.low_price;
+                let suspHighPrice = data.susp_high_price;
+                let suspLowPrice = data.susp_low_price;
                 
                 let orderbookRows = Array.from({ length: 10 }, (_, index) => ({
                     row: index + 1,
@@ -331,6 +367,15 @@
                         <td class='border px-3 py-2'>${formatNumber(trade[2])}</td>
                     </tr>`;
                 });
+
+                $('#day-volume').text(dayVolume.toLocaleString('de-DE'));
+                $('#opening-price').text(openingPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+                $('#susp-opening-price').text(suspOpeningPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+                $('#high-price').text(highPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+                $('#low-price').text(lowPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+                $('#susp-high-price').text(suspHighPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+                $('#susp-low-price').text(suspLowPrice.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 6 }) + ' €');
+
                 
                 $('#orderbook-body').html(orderbookBody);
                 $('#orderbook-body td').each(function() {
