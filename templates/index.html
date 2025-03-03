@@ -146,32 +146,45 @@
                 </table>
             </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             <div>
                 <h3 class="text-lg font-semibold mb-2">Orderbuch</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse border border-gray-300 text-sm">
                         <thead>
                             <tr class="bg-gray-200">
+                                <th class="border border-gray-300 px-3 py-2">Bid Wert</th>
                                 <th class="border border-gray-300 px-3 py-2">Orders</th>
                                 <th class="border border-gray-300 px-3 py-2">Shares</th>
                                 <th class="border border-gray-300 px-3 py-2">Bid Price</th>
                                 <th class="border border-gray-300 px-3 py-2">Ask Price</th>
                                 <th class="border border-gray-300 px-3 py-2">Shares</th>
                                 <th class="border border-gray-300 px-3 py-2">Orders</th>
+                                <th class="border border-gray-300 px-3 py-2">Ask Wert</th>
                             </tr>
                         </thead>
                         <tbody id="orderbook-body"></tbody>
                         <tfoot>
                             <tr>
+                                <td></td>
                                 <td colspan="2" class="text-center font-bold text-green-600" id="total-bid-shares">0</td>
                                 <td colspan="2" class="text-center">Gesamt</td>
                                 <td colspan="2" class="text-center font-bold text-red-600" id="total-ask-shares">0</td>
+                                <td></td>
                             </tr>
                             <tr>
+                                <td></td>
                                 <td colspan="2" class="text-center" id="total-bid-orders">0</td>
                                 <td colspan="2" class="text-center">Orders</td>
                                 <td colspan="2" class="text-center" id="total-ask-orders">0</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="2" class="text-center font-bold text-green-600" id="total-bid-value">0</td>
+                                <td colspan="2" class="text-center">Wert</td>
+                                <td colspan="2" class="text-center font-bold text-red-600" id="total-ask-value">0</td>
+                                <td></td>
                             </tr>
                         </tfoot>                    
                     </table>
@@ -270,27 +283,41 @@
             }
             return value;
         }
+        
+        function formatNumberMaxFD2(value) {
+            if (value === -2) return "MKT";
+            if (typeof value === 'number') {
+                return value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            return value;
+        }
 
         function updateTotals(bids, asks) {
             let totalBidShares = 0;
             let totalAskShares = 0;
             let totalBidOrders = 0;
             let totalAskOrders = 0;
+            let totalBidValue = 0;
+            let totalAskValue = 0;
             
             Object.values(bids).forEach(bid => {
                 totalBidShares += bid.size;
                 totalBidOrders += bid.quantity;
+                totalBidValue += parseFloat(bid.price) * parseFloat(bid.size);
             });
 
             Object.values(asks).forEach(ask => {
                 totalAskShares += ask.size;
                 totalAskOrders += ask.quantity;
+                totalAskValue += parseFloat(ask.price) * parseFloat(ask.size);
             });
 
             $('#total-bid-shares').text(totalBidShares.toLocaleString('de-DE'));
             $('#total-ask-shares').text(totalAskShares.toLocaleString('de-DE'));
             $('#total-bid-orders').text(totalBidOrders);
             $('#total-ask-orders').text(totalAskOrders);
+            $('#total-bid-value').text(totalBidValue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €');
+            $('#total-ask-value').text(totalAskValue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €');
 
             let total = totalBidShares + totalAskShares;
             let bidPercentage = total > 0 ? (totalBidShares / total * 100).toFixed(1) : 0;
@@ -337,6 +364,7 @@
                         orderbookRows[rowIndex - 1].bidSize = formatNumber(bids[key].size) || '';
                         orderbookRows[rowIndex - 1].bidPrice = formatNumber(bids[key].price) || '';
                         orderbookRows[rowIndex - 1].bidOrders = bids[key].quantity || '';
+                        orderbookRows[rowIndex - 1].bidValue = formatNumberMaxFD2(parseFloat(bids[key].price) * parseFloat(bids[key].size)) || '';
                     }
                 });
 
@@ -346,17 +374,20 @@
                         orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
                         orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
                         orderbookRows[rowIndex - 1].askOrders = asks[key].quantity || '';
+                        orderbookRows[rowIndex - 1].askValue = formatNumberMaxFD2(parseFloat(asks[key].price) * parseFloat(asks[key].size)) || '';
                     }
                 });
 
                 orderbookRows.forEach(row => {
                     orderbookBody += `<tr>
+                        <td class='border px-3 py-2'>${row.bidValue} €</td>
                         <td class='border px-3 py-2'>${row.bidOrders || ''}</td>
                         <td class='border px-3 py-2'>${row.bidSize}</td>
                         <td class='border px-3 py-2 highlight-green'>${row.bidPrice} €</td>
                         <td class='border px-3 py-2 highlight-red'>${row.askPrice} €</td>
                         <td class='border px-3 py-2'>${row.askSize}</td>
                         <td class='border px-3 py-2'>${row.askOrders || ''}</td>
+                        <td class='border px-3 py-2'>${row.askValue} €</td>
                     </tr>`;
                 });
 
