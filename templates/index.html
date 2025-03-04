@@ -289,15 +289,23 @@
             let totalAskValue = 0;
             
             Object.values(bids).forEach(bid => {
-                totalBidShares += bid.size;
-                totalBidOrders += bid.quantity;
-                totalBidValue += parseFloat(bid.price) * parseFloat(bid.size);
+                let bidPrice = bid.price ?? 0;
+                let bidSize = bid.size ?? 0;
+                let bidValue = (bidPrice > 0 && bidSize > 0) ? bidPrice * bidSize : 0;
+
+                totalBidShares += bidSize;
+                totalBidOrders += bid.quantity ?? 0;
+                totalBidValue += bidValue;
             });
 
             Object.values(asks).forEach(ask => {
-                totalAskShares += ask.size;
-                totalAskOrders += ask.quantity;
-                totalAskValue += parseFloat(ask.price) * parseFloat(ask.size);
+                let askPrice = ask.price ?? 0;
+                let askSize = ask.size ?? 0;
+                let askValue = (askPrice > 0 && askSize > 0) ? askPrice * askSize : 0;
+
+                totalAskShares += askSize;
+                totalAskOrders += ask.quantity ?? 0;
+                totalAskValue += askValue;
             });
 
             $('#total-bid-shares').text(totalBidShares.toLocaleString('de-DE'));
@@ -349,20 +357,84 @@
                 Object.keys(bids).forEach(key => {
                     let rowIndex = parseInt(key) + 1;
                     if (orderbookRows[rowIndex - 1]) {
-                        orderbookRows[rowIndex - 1].bidSize = formatNumber(bids[key].size) || '';
-                        orderbookRows[rowIndex - 1].bidPrice = formatNumber(bids[key].price) || '';
-                        orderbookRows[rowIndex - 1].bidOrders = bids[key].quantity || '';
-                        orderbookRows[rowIndex - 1].bidValue = formatNumberMaxFD2(parseFloat(bids[key].price) * parseFloat(bids[key].size)) || '';
+                        let bidSize = bids[key].size;
+                        let bidPrice = bids[key].price;
+                        let bidQuantity = bids[key].quantity;
+
+                        if (bidSize === undefined || bidSize === null) bidSize = 0;
+                        if (bidPrice === undefined || bidPrice === null) bidPrice = 0;
+                        if (bidQuantity === undefined || bidQuantity === null) bidQuantity = 0;
+
+                        orderbookRows[rowIndex - 1].bidSize = formatNumber(bidSize) || '-';
+                        orderbookRows[rowIndex - 1].bidOrders = bidQuantity || '-';
+
+                        if (bidPrice === -2) {
+                            let remainingSize = bidSize;
+                            let matchedValue = 0;
+
+                            Object.keys(asks)
+                                .sort((a, b) => (asks[a].price ?? 0) - (asks[b].price ?? 0))
+                                .forEach(askKey => {
+                                    if (remainingSize > 0 && (asks[askKey].price ?? 0) !== -2) {
+                                        let matchedSize = Math.min(remainingSize, asks[askKey].size ?? 0);
+                                        matchedValue += matchedSize * (asks[askKey].price ?? 0);
+                                        remainingSize -= matchedSize;
+                                    }
+                                });
+
+                            orderbookRows[rowIndex - 1].bidValue = matchedValue > 0 
+                                ? formatNumberMaxFD2(matchedValue) 
+                                : 'Warten...';
+                            orderbookRows[rowIndex - 1].bidPrice = 'MKT';
+                        } else {
+                            orderbookRows[rowIndex - 1].bidPrice = formatNumber(bidPrice) || '-';
+
+                            let bidValue = parseFloat(bidPrice) * parseFloat(bidSize);
+                            if (isNaN(bidValue) || bidValue == undefined) {
+                                orderbookRows[rowIndex - 1].bidValue = 0;
+                            } else {
+                                orderbookRows[rowIndex - 1].bidValue = formatNumberMaxFD2(bidValue);
+                            }
+                        }
                     }
                 });
+
+
 
                 Object.keys(asks).forEach(key => {
                     let rowIndex = parseInt(key) + 1;
                     if (orderbookRows[rowIndex - 1]) {
-                        orderbookRows[rowIndex - 1].askPrice = formatNumber(asks[key].price) || '';
-                        orderbookRows[rowIndex - 1].askSize = formatNumber(asks[key].size) || '';
-                        orderbookRows[rowIndex - 1].askOrders = asks[key].quantity || '';
-                        orderbookRows[rowIndex - 1].askValue = formatNumberMaxFD2(parseFloat(asks[key].price) * parseFloat(asks[key].size)) || '';
+                        let askSize = asks[key].size ?? 0;
+                        let askPrice = asks[key].price ?? 0;
+                        let askQuantity = asks[key].quantity ?? 0;
+
+                        orderbookRows[rowIndex - 1].askSize = formatNumber(askSize) || '-';
+                        orderbookRows[rowIndex - 1].askOrders = askQuantity || '-';
+
+                        if (askPrice === -2) {
+                            let remainingSize = askSize;
+                            let matchedValue = 0;
+
+                            Object.keys(bids)
+                                .sort((a, b) => (bids[b].price ?? 0) - (bids[a].price ?? 0))
+                                .forEach(bidKey => {
+                                    if (remainingSize > 0 && (bids[bidKey].price ?? 0) !== -2) {
+                                        let matchedSize = Math.min(remainingSize, bids[bidKey].size ?? 0);
+                                        matchedValue += matchedSize * (bids[bidKey].price ?? 0);
+                                        remainingSize -= matchedSize;
+                                    }
+                                });
+
+                            orderbookRows[rowIndex - 1].askValue = matchedValue > 0 
+                                ? formatNumberMaxFD2(matchedValue) 
+                                : 'Warten...';
+                            orderbookRows[rowIndex - 1].askPrice = 'MKT';
+                        } else {
+                            orderbookRows[rowIndex - 1].askPrice = formatNumber(askPrice) || '-';
+                            orderbookRows[rowIndex - 1].askValue = (askPrice > 0 && askSize > 0)
+                                ? formatNumberMaxFD2(parseFloat(askPrice) * parseFloat(askSize))
+                                : 0;
+                        }
                     }
                 });
 
