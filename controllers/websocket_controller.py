@@ -31,7 +31,7 @@ async def connect_websocket():
             debug_log("🌐 Versuche WebSocket-Verbindung herzustellen...")
             async with websockets.connect(
                 "wss://streaming.boursorama.com/quotes",
-                ping_interval=None,
+                ping_interval=20,
                 close_timeout=10
             ) as ws:
                 debug_log("✅ WebSocket-Verbindung hergestellt!")

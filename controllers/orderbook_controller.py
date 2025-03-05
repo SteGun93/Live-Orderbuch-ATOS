@@ -94,7 +94,8 @@ def handle_trades(data):
 
         debug_log(f"📈 Neuer Trade: Zeit={trade_time}, Preis={last_price}, Volumen={trade_volume}")
     else:
-        debug_log("Ungültige Live-Daten erhalten!")
+        debug_log("Ungültige Live-Daten erhalten:")
+        debug_log(data)
         
 def get_market_data():
     return {

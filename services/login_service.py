@@ -18,6 +18,8 @@ def get_boursorama_login():
         response = requests.get(LOGIN_URL, timeout=10)
         response.raise_for_status()
         data = response.json()
+
+        debug_log(f"✅ Config-Daten erhalten: \n{data}")
         
         config = data.get("config", {})
         login = config.get("login")

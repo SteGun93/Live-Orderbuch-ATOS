@@ -6,6 +6,14 @@
     <title>Live Orderbuch</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <audio id="kaching-sound">
+        <source src="{{ url_for('static', filename='ka-ching.mp3') }}" type="audio/mpeg">
+        Dein Browser unterstützt kein Audio-Element.
+    </audio>
+    <audio id="alert-sound">
+        <source src="{{ url_for('static', filename='not-good.mp3') }}" type="audio/mpeg">
+        Dein Browser unterstützt kein Audio-Element.
+    </audio>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <style>
         .bar-container {
@@ -206,7 +214,6 @@
     </div>    
 
     <script>
-
         document.addEventListener("DOMContentLoaded", function () {
             const toggleButton = document.getElementById("toggle-dark-mode");
             const body = document.body;
@@ -231,7 +238,15 @@
         let previousTrades = {};
         let tradeHighlightTimers = {};
         let lastTradeTimestamp = null;
+        let lastBidPrice = null;
 
+        function playSound(soundId) {
+            let audio = document.getElementById(soundId);
+            if (audio) {
+                audio.play().catch(error => console.log("Audio-Fehler:", error));
+            }
+        }
+        
         function highlightChange(cell, newValue, key) {
             if (previousValues[key] !== undefined) {
                 if (newValue > previousValues[key]) {
@@ -341,6 +356,7 @@
                 let lowPrice = data.low_price;
                 let suspHighPrice = data.susp_high_price;
                 let suspLowPrice = data.susp_low_price;
+                let firstRowBid = bids["0"] ? parseFloat(bids["0"].price) : null;
                 
                 let orderbookRows = Array.from({ length: 10 }, (_, index) => ({
                     row: index + 1,
@@ -351,6 +367,17 @@
                     askSize: '',
                     askOrders: ''
                 }));
+
+                if (firstRowBid !== null) {
+                    if (lastBidPrice !== null) {
+                        if (firstRowBid > lastBidPrice) {
+                            playSound("kaching-sound"); 
+                        } else if (firstRowBid < lastBidPrice) {
+                            playSound("alert-sound"); 
+                        }
+                    }
+                    lastBidPrice = firstRowBid; 
+                }
 
                 updateTotals(bids, asks);
 
