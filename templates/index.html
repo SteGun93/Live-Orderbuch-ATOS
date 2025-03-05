@@ -16,6 +16,51 @@
     </audio>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+
         .bar-container {
             display: flex;
             height: 30px;
@@ -125,6 +170,14 @@
         <button id="toggle-dark-mode" class="p-2 bg-gray-800 text-white rounded-lg">
             Dark Mode umschalten
         </button>
+        <div class="flex items-center space-x-3">
+            <span id="sound-icon">🔊</span>
+            <label for="sound-toggle" class="text-lg font-semibold">Sounds</label>
+            <label class="switch">
+                <input type="checkbox" id="sound-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
         <div>
             <h3 class="text-lg font-semibold mb-2">Tageswerte</h3>
             <div class="overflow-x-auto">
@@ -239,8 +292,27 @@
         let tradeHighlightTimers = {};
         let lastTradeTimestamp = null;
         let lastBidPrice = null;
+        let soundEnabled = localStorage.getItem('soundEnabled') === 'true';
+        const soundToggle = document.getElementById("sound-toggle");
+        const soundIcon = document.getElementById("sound-icon");
+
+        function updateSoundUI() {
+            soundToggle.checked = soundEnabled;
+            soundIcon.textContent = soundEnabled ? "🔊" : "🔇";
+        }
+
+        if (soundToggle) {
+            updateSoundUI();
+
+            soundToggle.addEventListener("change", function () {
+                soundEnabled = this.checked;
+                localStorage.setItem('soundEnabled', soundEnabled);
+                updateSoundUI();
+            });
+        }
 
         function playSound(soundId) {
+            if (!soundEnabled) return;
             let audio = document.getElementById(soundId);
             if (audio) {
                 audio.play().catch(error => console.log("Audio-Fehler:", error));
