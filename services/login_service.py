@@ -46,9 +46,8 @@ def get_boursorama_login():
         debug_log(f"📈 Symbolfilter: {symbols}")
         debug_log(f"📏 API-Limit: {quota_limit} Anfragen pro {quota_period} Sekunden")
 
-        return {
-            login, password
-        }
+        return login, password
+    
     except requests.RequestException as e:
         debug_log(f"⚠ Fehler beim Abrufen der Login-Daten: {e}")
-        return None
+        return None, None
