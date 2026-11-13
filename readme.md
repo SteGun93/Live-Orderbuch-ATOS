@@ -1,5 +1,7 @@
 # 📊 Live Orderbuch - ATOS
 
+Beiträge und agentische Arbeit: [CONTRIBUTING.md](CONTRIBUTING.md) und [AGENTS.md](AGENTS.md).
+
 Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Aktie. Es nutzt **Websockets** zur Echtzeit-Datenübertragung und **Flask** als Backend, während das Frontend mit **HTML** umgesetzt ist.
 
 ---
