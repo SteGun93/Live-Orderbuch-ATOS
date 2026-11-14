@@ -2,6 +2,18 @@
 
 Beiträge und agentische Arbeit: [CONTRIBUTING.md](CONTRIBUTING.md) und [AGENTS.md](AGENTS.md).
 
+## Automatisierte Prüfungen
+
+Die [CI](.github/workflows/ci.yml) läuft bei Pushs, Pull Requests und manuell mit Python 3.12 und 3.13, entsprechend der dokumentierten Entwicklungslinie. Nach Installation und Konsistenzprüfung der Abhängigkeiten folgen Syntaxprüfung und:
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+Die Tests prüfen partielle/wiederholte Orderbuchupdates, unvollständige Trades, das 50-Trade-Limit mit Ankunftsreihenfolge, Marktwerte und Flask-Routen sowie Login-/WebSocket-Fehler und Wiederholungen. Login und WebSocket verwenden Mocks; die Tests kontaktieren keinen Datenanbieter und benötigen keine Zugangsdaten. `DEBUG` ist deaktiviert.
+
+Das bestehende Dockerfile verwendet weiterhin Python 3.9 und widerspricht der README-Voraussetzung ab 3.12. Die CI ist kein Nachweis für dieses alte Containerimage; dessen Migration bleibt eine getrennte Änderung. Deployment und Containerstart sind nicht Teil der CI.
+
 Dieses Projekt zeigt ein **Live-Orderbuch** und **Tick-Daten** für die ATOS-Aktie. Es nutzt **Websockets** zur Echtzeit-Datenübertragung und **Flask** als Backend, während das Frontend mit **HTML** umgesetzt ist.
 
 ---
