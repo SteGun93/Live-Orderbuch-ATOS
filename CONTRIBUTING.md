@@ -38,7 +38,7 @@ Lokal gezielt prüfen, was sich geändert hat; bei breiten Änderungen die betro
 | Datenverarbeitung | Orderbuch/Trades mit synthetischen WebSocket-Nachrichten testen: leere, ungültige, verspätete und wiederholte Nachrichten |
 | Flask/Frontend | `/` und `/data` mit Flask-Testclient und gemockten Marktdaten; UI mit aufgezeichneten synthetischen Daten prüfen, keine Livepreise als stabile Testerwartung |
 | Compose | `docker compose config --quiet` prüft nur Konfiguration; keinen bestehenden Container oder festen Datenträger als Testumgebung verwenden |
-| Testlage/Doku | Keine eigene automatisierte Suite oder CI eingerichtet. Neue Verhaltensänderungen gezielt absichern; Quellen, Verweise, Skill-Metadaten und `git diff --check` prüfen |
+| Tests/CI | `python -m unittest discover -s tests -v`; CI prüft Python 3.12 und 3.13, Dependency-Konsistenz und Syntax. Login, WebSockets und Marktdaten verwenden ausschließlich Mocks/Fixtures; Quellen, Verweise und `git diff --check` zusätzlich prüfen |
 
 Ein Bericht nennt Stand/Commit, tatsächlich ausgeführte Befehle, Ergebnis und ausgelassene Prüfungen mit Grund. Fehlende Datenbank, Hardware, Browser oder Werkzeuge sind kein bestandener Test. Eigene Testinstanzen verwenden; keine laufenden Dienste der Person beenden und keine produktiven Datenbankmigrationen für einen Test ausführen.
 
